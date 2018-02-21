@@ -157,6 +157,10 @@ _get_config_bitfield (void)
    bf |= MONGOC_MD_FLAG_ENABLE_DNSAPI;
 #endif
 
+#ifdef MONGOC_ENABLE_ICU
+   bf |= MONGOC_MD_FLAG_ENABLE_ICU;
+#endif
+
    return bf;
 }
 

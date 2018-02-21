@@ -83,6 +83,10 @@ else
    MONGOC_LIBS="${MONGOC_LIBS} ${SNAPPY_LIBS}"
 fi
 
+# Always disable ICU. Autotools support is planning to get dropped, and ICU
+# is only necessary to support non-ASCII usernames or passwords.
+AC_SUBST(MONGOC_ENABLE_ICU, 0)
+
 AC_SUBST(MONGOC_LIBS)
 
 AC_CONFIG_FILES([

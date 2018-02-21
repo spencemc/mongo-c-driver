@@ -68,6 +68,7 @@ typedef enum {
    MONGOC_MD_FLAG_ENABLE_RES_NCLOSE = 1 << 24,
    MONGOC_MD_FLAG_ENABLE_RES_SEARCH = 1 << 25,
    MONGOC_MD_FLAG_ENABLE_DNSAPI = 1 << 26,
+   MONGOC_MD_FLAG_ENABLE_ICU = 1 << 27,
 } mongoc_handshake_config_flags_t;
 
 

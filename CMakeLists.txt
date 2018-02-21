@@ -35,6 +35,7 @@ set (ENABLE_SHM_COUNTERS AUTO CACHE STRING "Enable shared memory performance cou
 set (ENABLE_BSON AUTO CACHE STRING "Where to find libbson. Set to BUNDLED/SYSTEM/AUTO, default AUTO.")
 set (ENABLE_SNAPPY AUTO CACHE STRING "Enable snappy support")
 set (ENABLE_ZLIB BUNDLED CACHE STRING "Enable zlib support")
+set (ENABLE_ICU AUTO CACHE STRING "Enable ICU support, necessary to use non-ASCII usernames or passwords, default AUTO.")
 
 project (libmongoc C)
 
@@ -185,6 +186,22 @@ set (MONGOC_ENABLE_CRYPTO_SYSTEM_PROFILE 0)
 set (MONGOC_ENABLE_COMPRESSION 0)
 set (MONGOC_ENABLE_COMPRESSION_SNAPPY 0)
 set (MONGOC_ENABLE_COMPRESSION_ZLIB 0)
+
+set (MONGOC_ENABLE_ICU 0)
+
+if (NOT ENABLE_ICU MATCHES "AUTO|ON|OFF")
+   message (FATAL_ERROR, "ENABLE_ICU option must be AUTO, ON, or OFF")
+endif()
+
+if (NOT ENABLE_ICU STREQUAL OFF)
+   find_package (ICU COMPONENTS uc)
+   if (ICU_FOUND)
+      set (MONGOC_ENABLE_ICU 1)
+      include_directories ("${ICU_INCLUDE_DIR}")
+   elseif (ENABLE_ICU STREQUAL ON)
+      message (FATAL_ERROR "No ICU library found. If ICU is installed in a non-standard directory, define ICU_ROOT as the ICU installation path.")
+   endif()
+endif()
 
 if (OPENSSL_FOUND)
    if (WIN32 AND OPENSSL_VERSION GREATER 1.1 AND NOT
@@ -665,7 +682,7 @@ if (CMAKE_USE_PTHREADS_INIT)
    set (THREAD_LIB ${CMAKE_THREAD_LIBS_INIT})
 endif ()
 
-set (LIBS ${SASL_LIBS} ${SSL_LIBS} ${SHM_LIB} ${RESOLV_LIBS} ${SNAPPY_LIBS} Threads::Threads)
+set (LIBS ${SASL_LIBS} ${SSL_LIBS} ${SHM_LIB} ${RESOLV_LIBS} ${SNAPPY_LIBS} Threads::Threads ${ICU_LIBRARIES})
 if (WIN32)
    set (LIBS ${LIBS} ws2_32)
 endif ()
@@ -882,7 +899,7 @@ set (libdir "\${prefix}/lib")
 foreach (
       FLAG
       ${SASL_LIBS} ${SSL_LIBS} ${SHM_LIB} ${RESOLV_LIBS} ${THREAD_LIB}
-      ${ZLIB_LIBS} ${SNAPPY_LIBS})
+      ${ZLIB_LIBS} ${SNAPPY_LIBS} ${ICU_LIBRARIES})
 
    if (IS_ABSOLUTE "${FLAG}" )
       get_filename_component (FLAG_DIR "${FLAG}" DIRECTORY)
