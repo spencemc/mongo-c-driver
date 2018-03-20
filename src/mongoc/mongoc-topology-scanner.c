@@ -656,12 +656,14 @@ mongoc_topology_scanner_start (mongoc_topology_scanner_t *ts,
       return;
    }
 
-
    if (obey_cooldown) {
       /* when current cooldown period began */
       cooldown =
          bson_get_monotonic_time () - 1000 * MONGOC_TOPOLOGY_COOLDOWN_MS;
    }
+
+   /* delete retired nodes */
+   mongoc_topology_scanner_reset (ts);
 
    DL_FOREACH_SAFE (ts->nodes, node, tmp)
    {
