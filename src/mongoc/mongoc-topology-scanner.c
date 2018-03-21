@@ -220,16 +220,13 @@ mongoc_topology_scanner_add (mongoc_topology_scanner_t *ts,
 }
 
 void
-mongoc_topology_scanner_add_and_scan (mongoc_topology_scanner_t *ts,
-                                      const mongoc_host_list_t *host,
-                                      uint32_t id,
-                                      int64_t timeout_msec)
+mongoc_topology_scanner_scan (mongoc_topology_scanner_t *ts,
+                              uint32_t id,
+                              int64_t timeout_msec)
 {
    mongoc_topology_scanner_node_t *node;
 
-   BSON_ASSERT (timeout_msec < INT32_MAX);
-
-   node = mongoc_topology_scanner_add (ts, host, id);
+   node = mongoc_topology_scanner_get_node (ts, id);
 
    /* begin non-blocking connection, don't wait for success */
    if (node && mongoc_topology_scanner_node_setup (node, &node->last_error)) {
@@ -237,7 +234,6 @@ mongoc_topology_scanner_add_and_scan (mongoc_topology_scanner_t *ts,
    }
 
    /* if setup fails the node stays in the scanner. destroyed after the scan. */
-   return;
 }
 
 void
