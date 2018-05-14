@@ -2983,6 +2983,11 @@ mongoc_collection_find_and_modify_with_opts (
       BSON_APPEND_INT32 (&command, "maxTimeMS", opts->max_time_ms);
    }
 
+   mongoc_cmd_parts_init (
+      &parts, collection->client, collection->db, MONGOC_QUERY_NONE, &command);
+   parts.is_read_command = true;
+   parts.is_write_command = true;
+
    if (!bson_has_field (&opts->extra, "writeConcern")) {
       if (server_stream->sd->max_wire_version >=
           WIRE_VERSION_FAM_WRITE_CONCERN) {
@@ -2996,18 +3001,16 @@ mongoc_collection_find_and_modify_with_opts (
          }
 
          if (mongoc_write_concern_is_acknowledged (collection->write_concern)) {
-            BSON_APPEND_DOCUMENT (
-               &command,
-               "writeConcern",
-               _mongoc_write_concern_get_bson (collection->write_concern));
+            if (!mongoc_cmd_parts_set_write_concern (
+                   &parts,
+                   collection->write_concern,
+                   server_stream->sd->max_wire_version,
+                   error)) {
+               GOTO (done);
+            }
          }
       }
    }
-
-   mongoc_cmd_parts_init (
-      &parts, collection->client, collection->db, MONGOC_QUERY_NONE, &command);
-   parts.is_read_command = true;
-   parts.is_write_command = true;
 
    if (bson_iter_init (&iter, &opts->extra)) {
       bool ok = mongoc_cmd_parts_append_opts (
@@ -3047,8 +3050,9 @@ retry:
     * a new writable stream and retry. If server selection fails or the selected
     * server does not support retryable writes, fall through and allow the
     * original error to be reported. */
-   if (!ret && is_retryable && (error->domain == MONGOC_ERROR_STREAM ||
-                                mongoc_cluster_is_not_master_error (error))) {
+   if (!ret && is_retryable &&
+       (error->domain == MONGOC_ERROR_STREAM ||
+        mongoc_cluster_is_not_master_error (error))) {
       bson_error_t ignored_error;
 
       /* each write command may be retried at most once */
@@ -3061,9 +3065,8 @@ retry:
       retry_server_stream =
          mongoc_cluster_stream_for_writes (cluster, &ignored_error);
 
-      if (retry_server_stream &&
-          retry_server_stream->sd->max_wire_version >=
-             WIRE_VERSION_RETRY_WRITES) {
+      if (retry_server_stream && retry_server_stream->sd->max_wire_version >=
+                                    WIRE_VERSION_RETRY_WRITES) {
          parts.assembled.server_stream = retry_server_stream;
          GOTO (retry);
       }
