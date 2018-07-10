@@ -623,6 +623,13 @@ add_request_to_bulk (mongoc_bulk_operation_t *bulk,
             &opts, "upsert", _mongoc_lookup_bool (&args, "upsert", false));
       }
 
+      if (bson_has_field (&args, "arrayFilters")) {
+         bson_value_t array_filters;
+         bson_lookup_value (&args, "arrayFilters", &array_filters);
+         BSON_APPEND_VALUE (&opts, "arrayFilters", &array_filters);
+         bson_value_destroy (&array_filters);
+      }
+
       r = mongoc_bulk_operation_update_many_with_opts (
          bulk, &filter, &update, &opts, error);
    } else if (!strcmp (name, "updateOne")) {
@@ -635,6 +642,13 @@ add_request_to_bulk (mongoc_bulk_operation_t *bulk,
       if (bson_has_field (&args, "upsert")) {
          BSON_APPEND_BOOL (
             &opts, "upsert", _mongoc_lookup_bool (&args, "upsert", false));
+      }
+
+      if (bson_has_field (&args, "arrayFilters")) {
+         bson_value_t array_filters;
+         bson_lookup_value (&args, "arrayFilters", &array_filters);
+         BSON_APPEND_VALUE (&opts, "arrayFilters", &array_filters);
+         bson_value_destroy (&array_filters);
       }
 
       r = mongoc_bulk_operation_update_one_with_opts (
@@ -843,6 +857,26 @@ create_find_and_modify_opts (const char *name,
 
    if (_mongoc_lookup_bool (args, "upsert", false)) {
       flags |= MONGOC_FIND_AND_MODIFY_UPSERT;
+   }
+
+   if (bson_has_field (args, "collation")) {
+      bson_t collation = BSON_INITIALIZER;
+      bson_t temp;
+      bson_lookup_doc (args, "collation", &temp);
+      BSON_APPEND_DOCUMENT (&collation, "collation", &temp);
+      mongoc_find_and_modify_opts_append (opts, &collation);
+      bson_destroy (&collation);
+      bson_destroy (&temp);
+   }
+
+   if (bson_has_field (args, "arrayFilters")) {
+      bson_t array_filters = BSON_INITIALIZER;
+      bson_value_t temp;
+      bson_lookup_value (args, "arrayFilters", &temp);
+      BSON_APPEND_VALUE (&array_filters, "arrayFilters", &temp);
+      mongoc_find_and_modify_opts_append (opts, &array_filters);
+      bson_destroy (&array_filters);
+      bson_value_destroy (&temp);
    }
 
    if (bson_has_field (args, "returnDocument") &&
