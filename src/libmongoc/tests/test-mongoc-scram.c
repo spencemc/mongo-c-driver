@@ -9,6 +9,7 @@
 #include "TestSuite.h"
 #include "test-conveniences.h"
 #include "test-libmongoc.h"
+#include "mongoc-uri-private.h"
 
 #ifdef MONGOC_ENABLE_SSL
 static void
@@ -429,6 +430,9 @@ _skip_if_no_sha256 ()
                                        NULL /* error */);
    mongoc_uri_destroy (uri);
    mongoc_client_destroy (client);
+
+   printf("%d\n", res);
+
    return res ? 1 : 0;
 }
 

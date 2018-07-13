@@ -2691,6 +2691,8 @@ tasks:
             AUTH: "auth"
             SSL: "openssl"
             URI: ""
+            TRACE: "on"
+            ICU: "on"
         - func: "update codecov.io"
 
     - name: test-coverage-4.0-sharded-auth-openssl
@@ -2810,6 +2812,7 @@ tasks:
             AUTH: "noauth"
             SSL: "ssl"
             URI: ""
+            SKIP_SLOW: "no"
         - func: "update codecov.io"
 
     - name: test-coverage-latest-dns-auth

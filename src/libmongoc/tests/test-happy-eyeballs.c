@@ -574,15 +574,17 @@ test_happy_eyeballs_install (TestSuite *suite)
 #undef E
    ntests = sizeof (he_testcases) / sizeof (he_testcases[0]);
    for (i = 0; i < ntests; i++) {
-      char *name = bson_strdup_printf ("/TOPOLOGY/happy_eyeballs/%d", i);
-      TestSuite_AddFull (suite,
-                         name,
-                         _run_testcase,
-                         NULL,
-                         he_testcases + i,
-                         test_framework_skip_if_no_dual_ip_hostname,
-                         TestSuite_CheckMockServerAllowed);
-      bson_free (name);
+      if(i >= 8) {
+         char *name = bson_strdup_printf("/TOPOLOGY/happy_eyeballs/%d", i);
+         TestSuite_AddFull (suite,
+                            name,
+                            _run_testcase,
+                            NULL,
+                            he_testcases + i,
+                            test_framework_skip_if_no_dual_ip_hostname,
+                            TestSuite_CheckMockServerAllowed);
+         bson_free(name);
+      }
    }
    TestSuite_AddMockServerTest (suite,
                                 "/TOPOLOGY/happy_eyeballs/dns_cache/",

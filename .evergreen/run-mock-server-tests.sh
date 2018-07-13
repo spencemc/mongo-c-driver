@@ -4,6 +4,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 DNS=${DNS:-nodns}
+SKIP_SLOW=${SKIP_SLOW:-yes}
 
 echo "CC='${CC}' VALGRIND=${VALGRIND}"
 
@@ -14,7 +15,10 @@ export MONGOC_TEST_FUTURE_TIMEOUT_MS=30000
 export MONGOC_TEST_SERVER_LOG="json"
 export MONGOC_TEST_SKIP_MOCK="off"
 export MONGOC_TEST_SKIP_LIVE="on"
-export MONGOC_TEST_SKIP_SLOW="on"
+
+if [ "$SKIP_SLOW" == "yes" ]; then
+   export MONGOC_TEST_SKIP_SLOW="on"
+fi
 
 DIR=$(dirname $0)
 . $DIR/set-path.sh
