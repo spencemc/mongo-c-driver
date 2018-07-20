@@ -17,8 +17,7 @@ make install
 # checkout the newest release
 newest=`cat VERSION_RELEASED`
 
-# CDRIVER-2731: Update this line in verison 1.11.1 
-git checkout tags/$newest -f -- src
+git checkout tags/$newest -f
 
 # build the newest release
 export SKIP_TESTS=ON
@@ -29,12 +28,12 @@ make install
 cd abi-compliance
 
 # create the abi dumps for libmongoc
-abi-dumper ./changes-install/lib/libmongoc-1.0.so -o ./dumps/mongoc-changes.dump
-abi-dumper ./latest-release-install/lib/libmongoc-1.0.so -o ./dumps/mongoc-release.dump
+abi-dumper ./changes-install/lib/libmongoc-1.0.so -o ./dumps/mongoc-changes.dump -public-headers ./changes-install/include
+abi-dumper ./latest-release-install/lib/libmongoc-1.0.so -o ./dumps/mongoc-release.dump -public-headers ./latest-release-install/include
 
 # create abi dumps for libbson
-abi-dumper ./changes-install/lib/libbson-1.0.so -o ./dumps/bson-changes.dump
-abi-dumper ./latest-release-install/lib/libbson-1.0.so -o ./dumps/bson-release.dump
+abi-dumper ./changes-install/lib/libbson-1.0.so -o ./dumps/bson-changes.dump -public-headers ./changes-install/include
+abi-dumper ./latest-release-install/lib/libbson-1.0.so -o ./dumps/bson-release.dump -public-headers ./latest-release-install/include
 
 # check libmongoc and libbson for compliance. Generates HTML Reports
 abi-compliance-checker -l libmongoc -old ./dumps/mongoc-release.dump -new ./dumps/mongoc-changes.dump || result=$?
