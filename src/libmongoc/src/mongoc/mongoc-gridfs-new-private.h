@@ -29,7 +29,7 @@ BSON_BEGIN_DECLS
 /* PUBLIC STUFF */
 
 typedef struct _mongoc_gridfs_bucket_t  mongoc_gridfs_bucket_t ;
-typedef struct _mongoc_gridfs_file_id_t mongoc_gridfs_bucket_file_t;
+typedef struct _mongoc_gridfs_bucket_file_t mongoc_gridfs_bucket_file_t;
 
 
 
@@ -40,8 +40,8 @@ struct _mongoc_gridfs_bucket_t {
   // TODO
 };
 
-struct _mongoc_gridfs_file_id_t {
-
+struct _mongoc_gridfs_bucket_file_t {
+  // TODO
 };
 
 
@@ -72,18 +72,18 @@ mongoc_gridfs_bucket_new (mongoc_database_t *db,
  *      metadata : Document
  */
 
-mongoc_stream_t *
+mongoc_stream_t*
     mongoc_gridfs_open_upload_stream(mongoc_gridfs_bucket_t* bucket,
                                      char* filename,
                                      bson_t* opts /* upload opts */);
 
-mongoc_stream_t *
+mongoc_stream_t*
     mongoc_gridfs_open_upload_stream_with_id(mongoc_gridfs_bucket_t* bucket,
-                                             mongoc_gridfs_file_id_t* id,
+                                             /*some type here...*/ file_id,
                                              char* filename,
                                              bson_t* opts /* upload opts */);
 
-mongoc_gridfs_file_id_t *
+mongoc_gridfs_bucket_file_t*
     mongoc_gridfs_upload_from_stream(mongoc_gridfs_bucket_t* bucket,
                                      char* filename,
                                      mongoc_stream_t* source,
@@ -91,7 +91,7 @@ mongoc_gridfs_file_id_t *
 
 void
     mongoc_gridfs_upload_from_stream_with_id(mongoc_gridfs_bucket_t* bucket,
-                                             mongoc_gridfs_file_id_t* file_id,
+                                             mongoc_gridfs_bucket_file_t* file,
                                              char* filename,
                                              mongoc_stream_t* source,
                                              bson_t* opts /* upload opts */);
@@ -127,10 +127,18 @@ void
  */
 
 mongoc_cursor_t*
-    mongoc_gridfs_new_find(mongoc_gridfs_bucket_t* bucket, bson_t* filter, bson_t* opts);
+    mongoc_gridfs_find_v2(mongoc_gridfs_bucket_t* bucket, bson_t* filter, bson_t* opts);
+
+// what's next?
+
+// - Think about how to implement these functions.
+//      - Maybe make a rough implementation
+// - Go though old API and figure out how to do each of the operations in new API
 
 
-BSON_END_DECLS;
+
+
+BSON_END_DECLS
 
 
 #endif /* MONGOC_NEW_GRIDFS_H */
