@@ -596,7 +596,7 @@ if (WIN32)
    set (LIBRARIES ${LIBRARIES} ws2_32)
 endif ()
 
-add_library (mongoc_shared SHARED ${SOURCES} ${HEADERS})
+add_library (mongoc_shared SHARED ${SOURCES} ${HEADERS} src/mongoc/mongoc-gridfs-prototype.c src/mongoc/mongoc-gridfs-prototype.h src/mongoc/mongoc-gridfs-prototype-upload-stream.c src/mongoc/mongoc-gridfs-prototype-upload-stream.h src/mongoc/mongoc-gridfs-prototype-download-stream.c src/mongoc/mongoc-gridfs-prototype-download-stream.h src/mongoc/mongoc-gridfs-prototype-bucket-file.c src/mongoc/mongoc-gridfs-prototype-bucket-file.h)
 set_target_properties (mongoc_shared PROPERTIES CMAKE_CXX_VISIBILITY_PRESET hidden)
 target_link_libraries (mongoc_shared ${LIBRARIES} ${BSON_LIBRARIES})
 target_include_directories (mongoc_shared BEFORE PUBLIC ${BSON_INCLUDE_DIRS} ${MONGOC_INTERNAL_INCLUDE_DIRS})
