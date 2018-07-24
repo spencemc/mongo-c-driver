@@ -62,7 +62,7 @@ mongoc_gridfs_bucket_file_writev (mongoc_gridfs_bucket_file_t *file,
     }
 
     if(buffer_left != chunk_size){
-        // write last chunk here from buffer here! OR save in the file? And finish it off if we close.
+        // write last chunk here from buffer here! OR save in the file? And finish it off when we save to files collection
     }
 
     RETURN (bytes_written);

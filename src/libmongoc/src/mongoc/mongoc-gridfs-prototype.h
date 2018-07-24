@@ -14,39 +14,53 @@
 
 BSON_BEGIN_DECLS
 
+/* Start of new GridFS API */
 
-/* PUBLIC STUFF */
+/*
+ * In this file are all the methods that the user will use to interact with GridFS.
+ * This implementation should follow the spec defined here:
+ *
+ * https://github.com/mongodb/specifications/blob/master/source/gridfs/gridfs-spec.rst
+ *
+ * In addition to these methods, a large part of the implementation work will be implementing
+ * two new stream types:
+ *
+ *      1. GridFS Upload Stream.
+ *          This is a stream that the user can only write to. It will carry all the needed metadata
+ *          to write the given data to the chunks collection as well as updating the files collection.
+ *
+ *      2. GridFS Download Stream.
+ *          This is a stream that only allows reads. It will carry all the metadata about the given file
+ *          and will know how to read from the chunks successfully.
+ *
+ *
+ * Not included yet (but will be in final implementation):
+ *      The getter methods for mongoc_gridfs_bucket_t
+ *      Potentially a few setter methods.
+ *
+ * Future work:
+ *      https://github.com/mongodb/specifications/blob/master/source/gridfs/gridfs-spec.rst#advanced-api
+ *      Add seeking to the download cursor.
+ *
+ */
+
 
 typedef struct _mongoc_gridfs_bucket_t  mongoc_gridfs_bucket_t ;
-typedef struct _mongoc_gridfs_bucket_file_t mongoc_gridfs_bucket_file_t;
-
-
-
-/* PRIVATE STUFF */
-
 
 struct _mongoc_gridfs_bucket_t {
   mongoc_collection_t* chunks;
   mongoc_collection_t* files;
   int chunk_size;
   char* bucket_name;
-  // TODO
+  /* Potentially more fields here if we need more data for implementation */
 };
-
-struct _mongoc_gridfs_bucket_file_t {
-  bson_value_t* id;
-  char* filename;
-  int offset;
-  // TODO
-
-};
-
-
-// QUESTION 1: Should the options be a bson_t* or a struct?
-// QUESTION 2: Which methods need bson_error_t? All of them?
 
 /*
- * Valid create opts:
+ * Creates a new gridFS bucket in the given database.
+ *
+ * Returns a new gridFS bucket.
+ *
+ * Create opts:
  *        bucketName : String
  *        chunkSizeBytes : Int32
  *        writeConcern : WriteConcern
@@ -56,73 +70,110 @@ struct _mongoc_gridfs_bucket_file_t {
  *
  */
 mongoc_gridfs_bucket_t*
-mongoc_gridfs_bucket_new (mongoc_database_t *db,
-                          bson_t* opts /* create opts */,
-                          bson_error_t *error);
+mongoc_gridfs_bucket_new (mongoc_database_t *db /* IN */,
+                          bson_t* opts /* IN */);
 
 /*
- * Valid upload opts:
+ * Opens an upload stream for the user to write their file's data into.
+ * A file id is automatically generated.
+ *
+ * Returns the newly opened stream.
+ *
+ * (Note, there will be a method on the stream to get the file id it corresponds to)
+ *
+ * Upload opts:
  *      chunkSizeBytes : Int32
  *      metadata : Document
  */
-
 mongoc_stream_t*
-mongoc_gridfs_open_upload_stream(mongoc_gridfs_bucket_t* bucket,
-                                 char* filename,
-                                 bson_t* opts /* upload opts */,
-                                 bson_error_t *error);
+mongoc_gridfs_open_upload_stream(mongoc_gridfs_bucket_t* bucket /* IN */,
+                                 char* filename /* IN */,
+                                 bson_t* opts /* IN */);
 
+/*
+ * Same as above but user specifies their own file id
+ *
+ *
+ * Upload opts:
+ *      chunkSizeBytes : Int32
+ *      metadata : Document
+ */
 mongoc_stream_t*
-mongoc_gridfs_open_upload_stream_with_id(mongoc_gridfs_bucket_t* bucket,
-                                         bson_value_t* file_id,
-                                         char* filename,
-                                         bson_t* opts /* upload opts */,
-                                         bson_error_t *error);
+mongoc_gridfs_open_upload_stream_with_id(mongoc_gridfs_bucket_t* bucket /* IN */,
+                                         bson_value_t* file_id /* IN */,
+                                         char* filename /* IN */,
+                                         bson_t* opts /* IN */);
 
 
-bson_value_t*
-mongoc_gridfs_upload_from_stream(mongoc_gridfs_bucket_t* bucket,
-                                 char* filename,
-                                 mongoc_stream_t* source /* download stream (Maybe replace with generic file stream?) */,
-                                 bson_t* opts /* upload opts */,
-                                 bson_error_t *error);
+/*
+ * Uploads a file into gridFS by reading from the given mongoc_stream_t
+ * A file id is automatically generated.
+ *
+ * Returns true on success. On false, error will be set.
+ *
+ * Upload opts:
+ *      chunkSizeBytes : Int32
+ *      metadata : Document
+ */
+bool
+mongoc_gridfs_upload_from_stream(mongoc_gridfs_bucket_t* bucket /* IN */,
+                                 char* filename /* IN */,
+                                 mongoc_stream_t* source /* IN */,
+                                 bson_t* opts /* IN */,
+                                 bson_value_t* file_id /* OUT */,
+                                 bson_error_t *error /* OUT */);
 
+/*
+ * Same as above but user specifies their own file id
+ *
+ * Upload opts:
+ *      chunkSizeBytes : Int32
+ *      metadata : Document
+ */
+bool
+mongoc_gridfs_upload_from_stream_with_id(mongoc_gridfs_bucket_t* bucket /* IN */,
+                                         char* filename /* IN */,
+                                         mongoc_stream_t* source /* IN */,
+                                         bson_t* opts /* IN */,
+                                         bson_value_t* file_id /* IN */,
+                                         bson_error_t *error /* OUT */);
+/*
+ * Opens a download stream for the specified file id.
+ *
+ * Returns true on success. On false, error will be set.
+ */
+bool
+mongoc_gridfs_open_download_stream(mongoc_gridfs_bucket_t* bucket /* IN */,
+                                   bson_value_t* file_id /* IN */,
+                                   mongoc_stream_t* download_stream /* OUT */,
+                                   bson_error_t *error /* OUT */);
 
-void
-mongoc_gridfs_upload_from_stream_with_id(mongoc_gridfs_bucket_t* bucket,
-                                         bson_value_t* file_id,
-                                         char* filename,
-                                         mongoc_stream_t* source /* download stream (Maybe replace with generic file stream?) */,
-                                         bson_t* opts /* upload opts */,
-                                         bson_error_t *error);
+/*
+ * Writes the specified file to the given destination stream.
+ *
+ * Returns true on success. On false, error will be set.
+ */
+bool
+mongoc_gridfs_download_to_stream(mongoc_gridfs_bucket_t* bucket /* IN */,
+                                 bson_value_t* file_id /* IN */,
+                                 mongoc_stream_t* destination /* IN */,
+                                 bson_error_t *error /* OUT */);
 
-
-
-// Download methods:
-
-mongoc_stream_t *
-mongoc_gridfs_open_download_stream(mongoc_gridfs_bucket_t* bucket,
-                                   bson_value_t* file_id,
-                                   bson_error_t *error);
-
-
-void
-mongoc_gridfs_download_to_stream(mongoc_gridfs_bucket_t* bucket,
-                                 bson_value_t* file_id,
-                                 mongoc_stream_t* stream,
-                                 bson_error_t *error);
-
-
-
-// Delete
-
+/*
+ * Deletes the specified file from gridFS.
+ *
+ */
 void
 mongoc_gridfs_delete(mongoc_gridfs_bucket_t* bucket,
                      bson_value_t* file_id);
 
 
 /*
- * Valid find opts
+ * Finds all files that match the given filter in GridFS
+ *
+ * Returns a cursor
+ *
+ * Find opts
  *      batchSize : Int32 optional;
  *      limit : Int32 optional;
  *      maxTimeMS: Int64 optional;
@@ -132,16 +183,16 @@ mongoc_gridfs_delete(mongoc_gridfs_bucket_t* bucket,
  */
 
 mongoc_cursor_t*
-mongoc_gridfs_find_v2(mongoc_gridfs_bucket_t* bucket, bson_t* filter, bson_t* opts, bson_error_t *error);
-
-// what's next?
-
-// - Think about how to implement these functions.
-//      - Maybe make a rough implementation
-// - Go though old API and figure out how to do each of the operations in new API
+mongoc_gridfs_find_v2(mongoc_gridfs_bucket_t* bucket, /* IN */
+                      bson_t* filter, /* IN */
+                      bson_t* opts /* IN */);
 
 
-// TODO: add all getters (and potentially some setters)
+/*
+ * Destroys and frees the gridfs bucket
+ */
+void
+mongoc_gridfs_bucket_destroy(mongoc_gridfs_bucket_t* bucket);
 
 
 BSON_END_DECLS
