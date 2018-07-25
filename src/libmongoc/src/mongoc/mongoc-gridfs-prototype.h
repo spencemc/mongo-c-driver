@@ -1,6 +1,18 @@
-//
-// Created by Spencer McKenney on 7/23/18.
-//
+/*
+ * Copyright 2018-present MongoDB, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef MONGO_C_DRIVER_MONGOC_GRIDFS_PROTOTYPE_H
 #define MONGO_C_DRIVER_MONGOC_GRIDFS_PROTOTYPE_H
@@ -66,12 +78,11 @@ struct _mongoc_gridfs_bucket_t {
  *        writeConcern : WriteConcern
  *        readConcern : ReadConcern
  *        readPreference : ReadPreference
- *        disableMD5: Boolean
  *
  */
 mongoc_gridfs_bucket_t*
-mongoc_gridfs_bucket_new (mongoc_database_t *db /* IN */,
-                          bson_t* opts /* IN */);
+mongoc_gridfs_bucket_new (mongoc_database_t *db,
+                          const bson_t* opts);
 
 /*
  * Opens an upload stream for the user to write their file's data into.
@@ -86,9 +97,9 @@ mongoc_gridfs_bucket_new (mongoc_database_t *db /* IN */,
  *      metadata : Document
  */
 mongoc_stream_t*
-mongoc_gridfs_open_upload_stream(mongoc_gridfs_bucket_t* bucket /* IN */,
-                                 char* filename /* IN */,
-                                 bson_t* opts /* IN */);
+mongoc_gridfs_bucket_open_upload_stream(mongoc_gridfs_bucket_t* bucket,
+                                        const char* filename,
+                                        const bson_t* opts);
 
 /*
  * Same as above but user specifies their own file id
@@ -99,73 +110,69 @@ mongoc_gridfs_open_upload_stream(mongoc_gridfs_bucket_t* bucket /* IN */,
  *      metadata : Document
  */
 mongoc_stream_t*
-mongoc_gridfs_open_upload_stream_with_id(mongoc_gridfs_bucket_t* bucket /* IN */,
-                                         bson_value_t* file_id /* IN */,
-                                         char* filename /* IN */,
-                                         bson_t* opts /* IN */);
+mongoc_gridfs_bucket_open_upload_stream_with_id(mongoc_gridfs_bucket_t* bucket,
+                                                const bson_value_t* file_id,
+                                                const char* filename,
+                                                const bson_t* opts);
 
 
 /*
  * Uploads a file into gridFS by reading from the given mongoc_stream_t
  * A file id is automatically generated.
  *
- * Returns true on success. On false, error will be set.
+ * Returns a bson_value_t containing the file id on success. On failure, it returns NULL.
  *
  * Upload opts:
  *      chunkSizeBytes : Int32
  *      metadata : Document
  */
-bool
-mongoc_gridfs_upload_from_stream(mongoc_gridfs_bucket_t* bucket /* IN */,
-                                 char* filename /* IN */,
-                                 mongoc_stream_t* source /* IN */,
-                                 bson_t* opts /* IN */,
-                                 bson_value_t* file_id /* OUT */,
-                                 bson_error_t *error /* OUT */);
+bson_value_t*
+mongoc_gridfs_bucket_upload_from_stream(mongoc_gridfs_bucket_t* bucket,
+                                        const char* filename,
+                                        mongoc_stream_t* source,
+                                        const bson_t* opts);
 
 /*
  * Same as above but user specifies their own file id
  *
+ * Returns true on success. Otherwise, false.
+ *
  * Upload opts:
  *      chunkSizeBytes : Int32
  *      metadata : Document
  */
 bool
-mongoc_gridfs_upload_from_stream_with_id(mongoc_gridfs_bucket_t* bucket /* IN */,
-                                         char* filename /* IN */,
-                                         mongoc_stream_t* source /* IN */,
-                                         bson_t* opts /* IN */,
-                                         bson_value_t* file_id /* IN */,
-                                         bson_error_t *error /* OUT */);
+mongoc_gridfs_bucket_upload_from_stream_with_id(mongoc_gridfs_bucket_t* bucket,
+                                                const bson_value_t* file_id,
+                                                const char* filename,
+                                                mongoc_stream_t* source,
+                                                const bson_t* opts);
 /*
  * Opens a download stream for the specified file id.
  *
- * Returns true on success. On false, error will be set.
+ * Returns a download stream on success. On failure, it returns NULL.
  */
-bool
-mongoc_gridfs_open_download_stream(mongoc_gridfs_bucket_t* bucket /* IN */,
-                                   bson_value_t* file_id /* IN */,
-                                   mongoc_stream_t* download_stream /* OUT */,
-                                   bson_error_t *error /* OUT */);
+mongoc_stream_t*
+mongoc_gridfs_bucket_open_download_stream(mongoc_gridfs_bucket_t* bucket,
+                                          const bson_value_t* file_id);
 
 /*
  * Writes the specified file to the given destination stream.
  *
- * Returns true on success. On false, error will be set.
+ * Returns true on success. Otherwise, false.
  */
 bool
-mongoc_gridfs_download_to_stream(mongoc_gridfs_bucket_t* bucket /* IN */,
-                                 bson_value_t* file_id /* IN */,
-                                 mongoc_stream_t* destination /* IN */,
-                                 bson_error_t *error /* OUT */);
+mongoc_gridfs_bucket_download_to_stream(mongoc_gridfs_bucket_t* bucket,
+                                        const bson_value_t* file_id,
+                                        mongoc_stream_t* destination);
 
 /*
  * Deletes the specified file from gridFS.
  *
  */
 void
-mongoc_gridfs_delete(mongoc_gridfs_bucket_t* bucket,
-                     bson_value_t* file_id);
+mongoc_gridfs_bucket_delete_by_id(mongoc_gridfs_bucket_t* bucket,
+                                  const bson_value_t* file_id);
 
 
 /*
@@ -183,10 +190,19 @@ mongoc_gridfs_delete(mongoc_gridfs_bucket_t* bucket,
  */
 
 mongoc_cursor_t*
-mongoc_gridfs_find_v2(mongoc_gridfs_bucket_t* bucket, /* IN */
-                      bson_t* filter, /* IN */
-                      bson_t* opts /* IN */);
+mongoc_gridfs_find_v2(mongoc_gridfs_bucket_t* bucket,
+                      const bson_t* filter,
+                      const bson_t* opts);
 
+
+/*
+ * Get the error that happened while performing bucket operations
+ *
+ * If an error has happened, this returns true and sets the bson_error_t. Otherwise, this returns false.
+ *
+ */
+bool
+mongoc_gridfs_bucket_error(mongoc_gridfs_bucket_t* bucket, bson_error_t* error);
 
 /*
  * Destroys and frees the gridfs bucket
