@@ -190,7 +190,7 @@ mongoc_gridfs_bucket_delete_by_id(mongoc_gridfs_bucket_t* bucket,
  */
 
 mongoc_cursor_t*
-mongoc_gridfs_find_v2(mongoc_gridfs_bucket_t* bucket,
+mongoc_gridfs_bucket_find(mongoc_gridfs_bucket_t* bucket,
                       const bson_t* filter,
                       const bson_t* opts);
 

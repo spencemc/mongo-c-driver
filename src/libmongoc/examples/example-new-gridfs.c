@@ -10,12 +10,12 @@ main (int argc, char *argv[]) {
     mongoc_database_t *db;
     mongoc_stream_t *file_stream;
     mongoc_stream_t *file_stream2;
-    mongoc_stream_t download_stream;
+    mongoc_stream_t *download_stream;
     mongoc_gridfs_bucket_t *bucket;
     mongoc_cursor_t *cursor;
     bson_t *filter;
     bool res;
-    bson_value_t file_id;
+    bson_value_t* file_id;
     bson_error_t error;
     const bson_t *doc;
     char *str;
@@ -33,16 +33,17 @@ main (int argc, char *argv[]) {
 
     /* 2. Insert a file called 'example.txt' into gridFS as  */
     file_stream = mongoc_stream_file_new_for_path("example.txt", O_RDONLY, 0);
-    res = mongoc_gridfs_upload_from_stream(bucket, "example.txt", file_stream, NULL, &file_id, &error);
+    file_id = mongoc_gridfs_bucket_upload_from_stream(bucket, "example.txt", file_stream, NULL);
     if (!res) {
         printf("Error uploading file: %s\n", error.message);
         return EXIT_FAILURE;
     }
 
     /* 3. Read the file we just uploaded and print it out */
-    res = mongoc_gridfs_open_download_stream(bucket, file_id, &download_stream, &error);
-    if (!res) {
-        printf("Error downloading file: %s\n", error.message);
+    download_stream = mongoc_gridfs_bucket_open_download_stream(bucket, file_id);
+    if (!download_stream) {
+        mongoc_gridfs_bucket_error (bucket, &error);
+        printf ("error found: %s\n", error);
         return EXIT_FAILURE;
     }
 
@@ -60,15 +61,16 @@ main (int argc, char *argv[]) {
 
     /* 4. Download the file in gridFS to a local file */
     file_stream2 = mongoc_stream_file_new_for_path("example-copy.txt", O_RDWR | O_CREAT, 0);
-    res = mongoc_gridfs_download_to_stream(bucket, &file_id, file_stream2, &error);
+    res = mongoc_gridfs_download_to_stream(bucket, file_id, file_stream2);
     if (!res) {
-        printf("Error downloading file to stream: %s\n", error.message);
+        mongoc_gridfs_bucket_error (bucket, &error);
+        printf ("error found: %s\n", error);
         return EXIT_FAILURE;
     }
 
     /* 5. List what files are available in gridFS */
     filter = bson_new();
-    cursor = mongoc_gridfs_find_v2(bucket, filter, NULL);
+    cursor = mongoc_gridfs_bucket_find(bucket, filter, NULL);
 
     while (mongoc_cursor_next(cursor, &doc)) {
         str = bson_as_canonical_extended_json(doc, NULL);
@@ -77,7 +79,7 @@ main (int argc, char *argv[]) {
     }
 
     /* 7. Delete the file that we added. */
-    mongoc_gridfs_delete(bucket, &file_id);
+    mongoc_gridfs_delete(bucket, file_id);
 
     /* Done! Now let's cleanup */
     mongoc_stream_close(file_stream);
