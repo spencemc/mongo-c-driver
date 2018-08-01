@@ -960,6 +960,7 @@ _mongoc_write_command_execute_idl (mongoc_write_command_t *command,
    }
 
    if (server_stream->sd->max_wire_version >= WIRE_VERSION_OP_MSG) {
+      /* it just might be that OP_MSG doesn't generate a fake reply. */
       _mongoc_write_opmsg (command,
                            client,
                            server_stream,
