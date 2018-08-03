@@ -66,7 +66,7 @@ mongoc_gridfs_bucket_download_to_stream (mongoc_gridfs_bucket_t *bucket,
                                          const bson_value_t *file_id,
                                          mongoc_stream_t *destination);
 
-MONGOC_EXPORT (void)
+MONGOC_EXPORT (bool)
 mongoc_gridfs_bucket_delete_by_id (mongoc_gridfs_bucket_t *bucket,
                                    const bson_value_t *file_id);
 
@@ -82,8 +82,8 @@ mongoc_gridfs_bucket_error (mongoc_gridfs_bucket_t *bucket,
 MONGOC_EXPORT (void)
 mongoc_gridfs_bucket_destroy (mongoc_gridfs_bucket_t *bucket);
 
-MONGOC_EXPORT(bson_value_t *)
-mongoc_gridfs_bucket_get_file_id_from_stream (mongoc_stream_t* stream);
+MONGOC_EXPORT (bson_value_t *)
+mongoc_gridfs_bucket_get_file_id_from_stream (mongoc_stream_t *stream);
 
 BSON_END_DECLS
 

@@ -18,8 +18,9 @@
 #define MONGOC_STREAM_GRIDFS_DOWNLOAD_PRIVATE_H
 
 #include "mongoc-stream.h"
+#include "mongoc-gridfs-bucket-file-private.h"
 
-mongoc_stream_t*
+mongoc_stream_t *
 _mongoc_download_stream_gridfs_new (mongoc_gridfs_bucket_file_t *file);
 
 #endif /* MONGOC_STREAM_GRIDFS_DOWNLOAD_PRIVATE_H */

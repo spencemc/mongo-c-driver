@@ -21,14 +21,17 @@
 #error "Only <mongoc.h> can be included directly."
 #endif
 
+#include "mongoc-collection.h"
+
 BSON_BEGIN_DECLS
 
 struct _mongoc_gridfs_bucket_t {
-  mongoc_collection_t* chunks;
-  mongoc_collection_t* files;
-  int chunk_size;
-  char* bucket_name;
-  /* Potentially more fields here if we need more data for implementation */
+   mongoc_collection_t *chunks;
+   mongoc_collection_t *files;
+   int chunk_size;
+   char *bucket_name;
+   bson_error_t *error;
+   /* Potentially more fields here if we need more data for implementation */
 };
 
 BSON_END_DECLS

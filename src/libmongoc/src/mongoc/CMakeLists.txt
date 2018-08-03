@@ -25,6 +25,7 @@ set (src_libmongoc_src_mongoc_DIST_hs
    mongoc-error.h
    mongoc-find-and-modify.h
    mongoc-flags.h
+   mongoc-gridfs-bucket.h
    mongoc-gridfs-file.h
    mongoc-gridfs-file-list.h
    mongoc-gridfs-file-page.h
@@ -96,6 +97,8 @@ set (src_libmongoc_src_mongoc_DIST_noinst_hs
    mongoc-database-private.h
    mongoc-errno-private.h
    mongoc-find-and-modify-private.h
+   mongoc-gridfs-bucket-file-private.h
+   mongoc-gridfs-bucket-private.h
    mongoc-gridfs-file-list-private.h
    mongoc-gridfs-file-page-private.h
    mongoc-gridfs-file-private.h
@@ -138,6 +141,8 @@ set (src_libmongoc_src_mongoc_DIST_noinst_hs
    mongoc-stream-tls-private.h
    mongoc-stream-tls-secure-channel-private.h
    mongoc-stream-tls-secure-transport-private.h
+   mongoc-stream-gridfs-download-private.h
+   mongoc-stream-gridfs-upload-private.h
    mongoc-thread-private.h
    mongoc-topology-description-apm-private.h
    mongoc-topology-description-private.h

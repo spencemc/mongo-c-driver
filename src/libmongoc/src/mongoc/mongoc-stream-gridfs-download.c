@@ -110,7 +110,7 @@ _mongoc_download_stream_gridfs_check_closed (mongoc_stream_t *stream) /* IN */
 
 
 mongoc_stream_t *
-mongoc_download_stream_gridfs_new (mongoc_gridfs_bucket_file_t *file)
+_mongoc_download_stream_gridfs_new (mongoc_gridfs_bucket_file_t *file)
 {
    mongoc_gridfs_download_stream_t *stream;
 

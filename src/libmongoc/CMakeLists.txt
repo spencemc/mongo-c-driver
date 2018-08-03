@@ -405,6 +405,10 @@ set (SOURCES ${SOURCES}
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-find-and-modify.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-init.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs.c
+   ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-bucket.c
+   ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-bucket-file.c
+   ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-stream-gridfs-upload.c
+   ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-stream-gridfs-download.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-file.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-file-list.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-file-page.c
@@ -467,6 +471,7 @@ set (HEADERS
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-flags.h
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-find-and-modify.h
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs.h
+   ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-bucket.h
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-file.h
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-file-page.h
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-file-list.h

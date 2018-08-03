@@ -86,7 +86,9 @@ _mongoc_upload_stream_gridfs_flush (mongoc_stream_t *stream)
 
    BSON_ASSERT (stream);
 
-   ret = mongoc_gridfs_bucket_file_save (gridfs->file);
+   // TODO: Figure out what a "flush" is supposed to do in gridFS context.
+
+   // ret = mongoc_gridfs_bucket_file_save (gridfs->file);
 
    RETURN (ret);
 }
