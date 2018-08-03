@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* Example of the new gridFS prototype. Does not compile yet.*/
 int
 main (int argc, char *argv[])
 {

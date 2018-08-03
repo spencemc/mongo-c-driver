@@ -809,6 +809,7 @@ mongoc_add_example (example-command-monitoring TRUE ${PROJECT_SOURCE_DIR}/exampl
 mongoc_add_example (example-command-with-opts TRUE ${PROJECT_SOURCE_DIR}/examples/example-command-with-opts.c)
 mongoc_add_example (example-create-indexes TRUE ${PROJECT_SOURCE_DIR}/examples/example-create-indexes.c)
 mongoc_add_example (example-gridfs TRUE ${PROJECT_SOURCE_DIR}/examples/example-gridfs.c)
+mongoc_add_example (example-gridfs-bucket TRUE ${PROJECT_SOURCE_DIR}/examples/example-gridfs-bucket.c)
 if (NOT WIN32 AND ENABLE_EXAMPLES)
    mongoc_add_example (example-pool TRUE ${PROJECT_SOURCE_DIR}/examples/example-pool.c)
    target_link_libraries (example-pool Threads::Threads)
