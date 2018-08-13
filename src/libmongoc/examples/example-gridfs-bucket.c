@@ -73,7 +73,7 @@ main (int argc, char *argv[])
       mongoc_stream_file_new_for_path (argv[2], O_CREAT | O_RDWR, 0);
 
    if (!file_stream2) {
-      printf ("File to write to doesn't exist\n");
+      printf ("File to write to already exists\n");
       return EXIT_FAILURE;
    }
 

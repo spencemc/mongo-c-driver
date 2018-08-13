@@ -16,8 +16,7 @@
 
 #include <bson.h>
 #include <bson-types.h>
-#include "mongoc-collection.h"
-#include "mongoc-stream.h"
+#include "mongoc.h"
 #include "mongoc-gridfs-bucket.h"
 #include "mongoc-gridfs-bucket-private.h"
 #include "mongoc-gridfs-bucket-file-private.h"
@@ -26,7 +25,6 @@
 #include "mongoc-stream-gridfs-download-private.h"
 #include "mongoc-stream-private.h"
 #include "mongoc-read-concern-private.h"
-#include "mongoc.h"
 
 /*
  * Attempts to find the file corresponding to the given file_id in GridFS
@@ -62,7 +60,7 @@ _mongoc_gridfs_find_file_with_id (mongoc_gridfs_bucket_t *bucket,
                       "No file with given id exists");
       return NULL;
    } else {
-      file = bson_new ();
+      file = malloc (sizeof (*file));
       bson_copy_to (doc, file);
       mongoc_cursor_destroy (cursor);
       return file;
@@ -267,7 +265,6 @@ mongoc_gridfs_bucket_upload_from_stream_with_id (mongoc_gridfs_bucket_t *bucket,
 
    /* QUESTION: What's the best way to buffer this? */
 
-   bytes_read = 0;
    while ((bytes_read = mongoc_stream_read (source, buf, 512, 1, 0)) > 0) {
       mongoc_stream_write (upload_stream, buf, bytes_read, 0);
    }
@@ -399,8 +396,6 @@ mongoc_gridfs_bucket_download_to_stream (mongoc_gridfs_bucket_t *bucket,
       mongoc_gridfs_bucket_open_download_stream (bucket, file_id);
 
    /* QUESTION: What's the best way to buffer this? */
-   bytes_read = 0;
-   bytes_written = 0;
    while ((bytes_read = mongoc_stream_read (download_stream, buf, 256, 1, 0)) >
           0) {
       bytes_written = mongoc_stream_write (destination, buf, bytes_read, 0);
@@ -474,10 +469,22 @@ mongoc_gridfs_bucket_find (mongoc_gridfs_bucket_t *bucket,
                            const bson_t *filter,
                            const bson_t *opts)
 {
+
+   mongoc_cursor_t* result;
    BSON_ASSERT (bucket);
    BSON_ASSERT (filter);
 
-   return mongoc_collection_find_with_opts (bucket->files, filter, opts, NULL);
+   if(opts){
+       bson_t *exclude_opts = bson_new();
+       bson_copy_to_excluding_noinit(opts, exclude_opts, "sessionId");
+       result = mongoc_collection_find_with_opts (bucket->files, filter, exclude_opts, NULL);
+       bson_destroy(exclude_opts);
+       bson_free(exclude_opts);
+       return result;
+   } else {
+       return mongoc_collection_find_with_opts (bucket->files, filter, NULL, NULL);
+   }
+
 }
 
 bool

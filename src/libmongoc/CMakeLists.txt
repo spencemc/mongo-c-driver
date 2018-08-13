@@ -407,8 +407,6 @@ set (SOURCES ${SOURCES}
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-bucket.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-bucket-file.c
-   ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-stream-gridfs-upload.c
-   ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-stream-gridfs-download.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-file.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-file-list.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-gridfs-file-page.c
@@ -440,6 +438,8 @@ set (SOURCES ${SOURCES}
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-stream-buffered.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-stream-file.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-stream-gridfs.c
+   ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-stream-gridfs-download.c
+   ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-stream-gridfs-upload.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-stream-socket.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-topology.c
    ${PROJECT_SOURCE_DIR}/src/mongoc/mongoc-topology-description.c

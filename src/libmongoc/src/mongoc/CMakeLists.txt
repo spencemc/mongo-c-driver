@@ -184,6 +184,8 @@ set (src_libmongoc_src_mongoc_DIST_cs
    mongoc-host-list.c
    mongoc-init.c
    mongoc-gridfs.c
+   mongoc-gridfs-bucket.c
+   mongoc-gridfs-bucket-file.c
    mongoc-gridfs-file.c
    mongoc-gridfs-file-page.c
    mongoc-gridfs-file-list.c
@@ -211,6 +213,8 @@ set (src_libmongoc_src_mongoc_DIST_cs
    mongoc-stream-buffered.c
    mongoc-stream-file.c
    mongoc-stream-gridfs.c
+   mongoc-stream-gridfs-download.c
+   mongoc-stream-gridfs-upload.c
    mongoc-stream-socket.c
    mongoc-topology.c
    mongoc-topology-description.c

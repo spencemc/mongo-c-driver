@@ -16,15 +16,19 @@
 
 #include <bson.h>
 #include <bson-types.h>
-
-#include "mongoc-collection.h"
+#include "mongoc.h"
 #include "mongoc-gridfs-bucket-file-private.h"
 #include "mongoc-gridfs-bucket-private.h"
-#include "mongoc-iovec.h"
 #include "mongoc-trace-private.h"
 #include "mongoc-stream-gridfs-download-private.h"
 #include "mongoc-stream-gridfs-upload-private.h"
-#include "mongoc.h"
+
+/* Returns the minimum of two numbers */
+size_t
+get_min (const size_t a, const size_t b)
+{
+   return a < b ? a : b;
+}
 
 /*
  * Creates an index in the given collection if it doesn't already exist.
@@ -159,13 +163,6 @@ mongoc_gridfs_bucket_set_indexes (mongoc_gridfs_bucket_t *bucket)
    }
 
    return true;
-}
-
-/* Returns the minimum of two numbers */
-size_t
-min (size_t a, size_t b)
-{
-   return a < b ? a : b;
 }
 
 /*
@@ -375,7 +372,7 @@ mongoc_gridfs_bucket_file_writev (mongoc_gridfs_bucket_file_t *file,
       while (written_this_iov < iov[i].iov_len) {
          bytes_available = iov[i].iov_len - written_this_iov;
          space_available = file->chunk_size - file->in_buffer;
-         to_write = min (bytes_available, space_available);
+         to_write = get_min (bytes_available, space_available);
          memcpy (file->buffer + file->in_buffer,
                  iov[i].iov_base + written_this_iov,
                  to_write);
@@ -425,7 +422,7 @@ mongoc_gridfs_bucket_file_readv (mongoc_gridfs_bucket_file_t *file,
       while (read_this_iov < iov[i].iov_len) {
          bytes_available = file->in_buffer - file->bytes_read;
          space_available = iov[i].iov_len - read_this_iov;
-         to_read = min (bytes_available, space_available);
+         to_read = get_min (bytes_available, space_available);
          memcpy (iov[i].iov_base + read_this_iov,
                  file->buffer + file->bytes_read,
                  to_read);
